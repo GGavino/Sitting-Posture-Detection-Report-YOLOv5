@@ -4,7 +4,7 @@ import csv
 from app_models.model import Model
 
 def main(video_path, model_path="small640.pt", target_fps=5):
-    model = Model(model_path)
+    model = Model(model_path, use_camera=False)
     inference_model = model.inference_model
 
     cap = cv2.VideoCapture(video_path)
@@ -52,7 +52,7 @@ def main(video_path, model_path="small640.pt", target_fps=5):
     # Save report to CSV
     csv_filename = "posture_report.csv"
     with open(csv_filename, mode='w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, delimiter=';')  # Use semicolon as delimiter
         writer.writerow(["Posture", "Frames", "Seconds"])
         for k, v in frame_counts.items():
             writer.writerow([k, v, f"{v/target_fps:.2f}"])

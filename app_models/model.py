@@ -5,7 +5,7 @@ from app_models.load_model import InferenceModel
 
 
 class Model:
-    def __init__(self, model_name):
+    def __init__(self, model_name, use_camera=True):
         super().__init__()
         self.is_fullscreen = False
         self.fullscreen_window = None
@@ -20,14 +20,21 @@ class Model:
         self.fps = None
         with open('./commit_hash.txt', 'r') as file:
             self.commit_hash = file.read()
-        # self.inference_models = Model(get_model_name())
         self.prev_frame_time = 0
         self.IMAGE_BOX_SIZE = 600
         self.flag_is_camera_thread_running = True
-        self.camera_mapping = camera_helper.get_camera_mapping(camera_helper.get_connected_camera_alias(),
-                                                               camera_helper.get_connected_camera_ids())
-        self.camera = None
-        self.work_thread_camera = None
+
+        if use_camera:
+            from app_controllers.utils import camera_helper
+            self.camera_mapping = camera_helper.get_camera_mapping(
+                camera_helper.get_connected_camera_alias(),
+                camera_helper.get_connected_camera_ids())
+            self.camera = None
+            self.work_thread_camera = None
+        else:
+            self.camera_mapping = None
+            self.camera = None
+            self.work_thread_camera = None
 
         """
         Load the frame properties
