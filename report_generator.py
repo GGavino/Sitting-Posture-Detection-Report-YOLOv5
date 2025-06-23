@@ -27,7 +27,6 @@ def summarize_intervals(frame_analysis, total_frames=None):
         ):
             end_frame = frame_analysis[i + 1]['frame']
             i += 1
-        # Set end_frame to the frame before the next analyzed frame, or to total_frames-1 if last
         if i + 1 < len(frame_analysis):
             end_frame = frame_analysis[i + 1]['frame'] - 1
         elif total_frames is not None:

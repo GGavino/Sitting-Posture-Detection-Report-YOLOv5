@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Posture Analysis Upload</title>
+  <style>
+    body {
+      background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    h1 {
+      margin-top: 60px;
+      color: #234567;
+      letter-spacing: 1px;
+      font-size: 2.2rem;
+      text-shadow: 0 2px 8px #fff8;
+    }
+    form {
+      background: #fff;
+      padding: 32px 28px 24px 28px;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px #0001;
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    input[type="file"] {
+      border: 1px solid #b0c4de;
+      border-radius: 6px;
+      padding: 8px;
+      background: #f7faff;
+      font-size: 1rem;
+      width: 260px;
+    }
+    button {
+      background: linear-gradient(90deg, #4f8cff 0%, #38c6ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 32px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #4f8cff22;
+      transition: background 0.2s, transform 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #38c6ff 0%, #4f8cff 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+    #results {
+      margin-top: 36px;
+      width: 100%;
+      max-width: 600px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px #0001;
+      padding: 28px 24px;
+      font-size: 1.08rem;
+      color: #234567;
+      word-break: break-word;
+      min-height: 40px;
+      display: none;
+    }
+    #results.visible {
+      display: block;
+      animation: fadeIn 0.7s;
+    }
+    h2 {
+      margin-top: 0;
+      color: #2b5d8c;
+      font-size: 1.3rem;
+      letter-spacing: 0.5px;
+    }
+    pre {
+      background: #f4f8fb;
+      border-radius: 8px;
+      padding: 14px 12px;
+      font-size: 1rem;
+      color: #234567;
+      overflow-x: auto;
+      margin-bottom: 18px;
+      margin-top: 10px;
+      box-shadow: 0 1px 4px #0001;
+    }
+    a[download] {
+      display: inline-block;
+      background: #38c6ff;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px #38c6ff22;
+      transition: background 0.2s, transform 0.2s;
+    }
+    a[download]:hover {
+      background: #4f8cff;
+      transform: translateY(-2px) scale(1.03);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload Video for Posture Analysis</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="video" accept="video/*" required>
+    <button type="submit">Upload</button>
+  </form>
+  <div id="results"></div>
+  <script>
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.classList.remove('visible');
+      resultsDiv.innerHTML = "Processing video, please wait...";
+      resultsDiv.style.display = "block";
+      try {
+        const res = await fetch('/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.ai_comments) {
+          resultsDiv.innerHTML = `
+            <h2>AI Comments</h2>
+            <pre>${data.ai_comments}</pre>
+            <a href="/download/csv" download="posture_report.csv">Download CSV Report</a>
+          `;
+        } else {
+          resultsDiv.textContent = data.error || 'Error processing video';
+        }
+      } catch (err) {
+        resultsDiv.textContent = "An error occurred. Please try again.";
+      }
+      resultsDiv.classList.add('visible');
+    };
+  </script>
